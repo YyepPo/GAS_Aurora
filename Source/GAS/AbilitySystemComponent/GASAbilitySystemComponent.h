@@ -13,6 +13,7 @@ class GAS_API UGASAbilitySystemComponent : public UAbilitySystemComponent
 	GENERATED_BODY()
 
 public:
+	
 	UGASAbilitySystemComponent();
 	
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
@@ -25,5 +26,7 @@ public:
 
 	void OnAbilityInputPressed(FGameplayTag Tag);
 	void OnAbilityInputReleased( FGameplayTag Tag);
-	
+
+	UFUNCTION(BlueprintCallable)
+		void ActivateAbilityByTag(FGameplayTag AbilityTag);
 };

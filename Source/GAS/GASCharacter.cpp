@@ -9,10 +9,15 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
-#include "GASPlayerState.h"
-#include "AttributeSet/GASAttributeSet.h"
 
-AGASCharacter::AGASCharacter()
+#include "GASPlayerState.h"
+
+#include "Character/GASMovementComponent.h"
+#include "Net/UnrealNetwork.h"
+
+AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer)
+	// Set Character Movement Class To Be UGASMovementComponent 
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGASMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -22,6 +27,8 @@ AGASCharacter::AGASCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	UGASMovementComponent* GASMovementComponent = CastChecked<UGASMovementComponent>(GetCharacterMovement());
+	
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
@@ -70,6 +77,47 @@ void AGASCharacter::OnRep_PlayerState()
 	InitAbilityInfo();
 }
 
+void AGASCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME_CONDITION(AGASCharacter,ReplicatedAcceleration,COND_SimulatedOnly);
+}
+
+void AGASCharacter::PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker)
+{
+	Super::PreReplication(ChangedPropertyTracker);
+
+	if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+	{
+		// Compress Acceleration: XY components as direction + magnitude, Z component as direct value
+		const double MaxAccel = MovementComponent->MaxAcceleration;
+		const FVector CurrentAccel = MovementComponent->GetCurrentAcceleration();
+		double AccelXYRadians, AccelXYMagnitude;
+		FMath::CartesianToPolar(CurrentAccel.X, CurrentAccel.Y, AccelXYMagnitude, AccelXYRadians);
+
+		ReplicatedAcceleration.AccelXYRadians   = FMath::FloorToInt((AccelXYRadians / TWO_PI) * 255.0);     // [0, 2PI] -> [0, 255]
+		ReplicatedAcceleration.AccelXYMagnitude = FMath::FloorToInt((AccelXYMagnitude / MaxAccel) * 255.0);	// [0, MaxAccel] -> [0, 255]
+		ReplicatedAcceleration.AccelZ           = FMath::FloorToInt((CurrentAccel.Z / MaxAccel) * 127.0);   // [-MaxAccel, MaxAccel] -> [-127, 127]
+	}
+}
+
+void AGASCharacter::OnRep_ReplicatedAcceleration()
+{
+	if (UGASMovementComponent* GASMovementComponent = Cast<UGASMovementComponent>(GetCharacterMovement()))
+	{
+		// Decompress Acceleration
+		const double MaxAccel         = GASMovementComponent->MaxAcceleration;
+		const double AccelXYMagnitude = double(ReplicatedAcceleration.AccelXYMagnitude) * MaxAccel / 255.0; // [0, 255] -> [0, MaxAccel]
+		const double AccelXYRadians   = double(ReplicatedAcceleration.AccelXYRadians) * TWO_PI / 255.0;     // [0, 255] -> [0, 2PI]
+
+		FVector UnpackedAcceleration(FVector::ZeroVector);
+		FMath::PolarToCartesian(AccelXYMagnitude, AccelXYRadians, UnpackedAcceleration.X, UnpackedAcceleration.Y);
+		UnpackedAcceleration.Z = double(ReplicatedAcceleration.AccelZ) * MaxAccel / 127.0; // [-127, 127] -> [-MaxAccel, MaxAccel]
+
+		GASMovementComponent->SetReplicatedAcceleration(UnpackedAcceleration);
+	}
+}
+
 void AGASCharacter::InitAbilityInfo()
 {
 	if(AGASPlayerState* GASPlayerState = GetPlayerState<AGASPlayerState>())
@@ -113,13 +161,24 @@ void AGASCharacter::BeginPlay()
 // Input
 void AGASCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+	if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			Subsystem->AddMappingContext(DefaultMappingContext, 0);
+		}
+	}
+	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
+		
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGASCharacter::Move);
 
 		//Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGASCharacter::Look);
+
+		
 	}
 }
 
@@ -145,8 +204,6 @@ void AGASCharacter::Move(const FInputActionValue& Value)
 	
 		// Forward/Backward movement
 		AddMovementInput(ForwardDirection, MovementVector.Y);
-
-		
 	}
 }
 

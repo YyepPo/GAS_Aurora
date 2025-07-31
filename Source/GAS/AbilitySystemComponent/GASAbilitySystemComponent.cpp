@@ -15,7 +15,6 @@ void UGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<
 		{
 			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
 			GiveAbility(GameplayAbilitySpec);
-
 		}
 	}
 }
@@ -101,6 +100,31 @@ void UGASAbilitySystemComponent::OnAbilityInputReleased(FGameplayTag Tag)
 			InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputReleased,
 				AbilitySpec.Handle,
 				AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+		}
+	}
+}
+
+void UGASAbilitySystemComponent::ActivateAbilityByTag(FGameplayTag AbilityTag)
+{
+	if(AbilityTag.IsValid() == false)
+	{
+		return;
+	}
+
+	for (const FGameplayAbilitySpec& AbilitySpec : GetActivatableAbilities())
+	{
+		if(AbilitySpec.Ability->AbilityTags.HasTagExact(AbilityTag))
+		{
+			if(AbilitySpec.IsActive() == false)
+			{
+				TryActivateAbility(AbilitySpec.Handle);
+			}
+			else
+			{
+				InvokeReplicatedEvent(EAbilityGenericReplicatedEvent::InputPressed,
+					AbilitySpec.Handle,
+					AbilitySpec.ActivationInfo.GetActivationPredictionKey());
+			}
 		}
 	}
 }

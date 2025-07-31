@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,6 +7,24 @@
 #include "AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "AttributeSet/GASAttributeSet.h"
 #include "GASCharacter.generated.h"
+
+/**
+ * FLyraReplicatedAcceleration: Compressed representation of acceleration
+ */
+USTRUCT()
+struct FGASReplicatedAcceleration
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	uint8 AccelXYRadians = 0;	// Direction of XY accel component, quantized to represent [0, 2*pi]
+
+	UPROPERTY()
+	uint8 AccelXYMagnitude = 0;	//Accel rate of XY component, quantized to represent [0, MaxAcceleration]
+
+	UPROPERTY()
+	int8 AccelZ = 0;	// Raw Z accel rate component, quantized to represent [-MaxAcceleration, MaxAcceleration]
+};
 
 UCLASS(config=Game)
 class AGASCharacter : public ACharacter,public  IAbilitySystemInterface
@@ -37,11 +53,16 @@ class AGASCharacter : public ACharacter,public  IAbilitySystemInterface
 
 public:
 	
-	AGASCharacter();
+	AGASCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	//~Actor Interface
 	virtual void PossessedBy(AController* NewController) override;
 	virtual void OnRep_PlayerState() override;
+	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+	//~End Of Actor Interface
 
+	
 	/** Returns AbilitySystemComponent,this function is part of the  IAbilitySystemInterface **/
     virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
     {
@@ -60,8 +81,7 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
-
-protected:
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
@@ -69,7 +89,8 @@ protected:
 	virtual void BeginPlay();
 
 private:
-	
+
+	//~GAS Related Properties
 	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UGASAbilitySystemComponent> GameplayAbilitySystemComponent;
 	
@@ -84,7 +105,13 @@ private:
 		TSubclassOf<UGameplayEffect> DefaultGameplayEffectClass ;
 	
 	void InitAbilityInfo();
-			
+	//~End GAS Related Properties
+
+	UPROPERTY(Transient,ReplicatedUsing = OnRep_ReplicatedAcceleration)
+		FGASReplicatedAcceleration ReplicatedAcceleration;
+	UFUNCTION()
+		void OnRep_ReplicatedAcceleration();
+	
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		AActor* LockedTarget;
 	

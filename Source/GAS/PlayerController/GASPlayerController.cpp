@@ -50,6 +50,7 @@ TObjectPtr<UGASAbilitySystemComponent> AGASPlayerController::GetGASAbilitySystem
 	{
 		if(AGASPlayerState* GASPlayerState = GetPlayerState<AGASPlayerState>())
 		{
+			GASAbilitySystemComponent =	GASPlayerState->GetAbilitySystemComp();
 			return GASAbilitySystemComponent;
 		}
 	}
