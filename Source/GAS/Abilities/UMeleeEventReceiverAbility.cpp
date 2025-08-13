@@ -36,7 +36,6 @@ void UUMeleeEventReceiverAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	// Define the gameplay event tag to listen for
 	FGameplayTag EventTag = FGameplayTag::RequestGameplayTag("Event.Melee.Hit");
 	if (!EventTag.IsValid())
 	{
@@ -45,7 +44,6 @@ void UUMeleeEventReceiverAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	// Create the WaitGameplayEvent task
 	UAbilityTask_WaitGameplayEvent* WaitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, EventTag, nullptr, false, false);
 	if (WaitTask)
 	{

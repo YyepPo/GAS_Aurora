@@ -22,13 +22,20 @@ void UGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 		const float NewHealth = GetHealth() - LocalDamageDone;
 		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
 	}
-	else if(Data.EvaluatedData.Attribute == GetHealthAttribute())
+
+	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0,GetMaxHealth()));
 	}
-	else if(Data.EvaluatedData.Attribute == GetManaAttribute())
+
+	if(Data.EvaluatedData.Attribute == GetManaAttribute())
 	{
 		SetMana(FMath::Clamp(GetMana(),0,GetMaxMana()));
+	}
+
+	if(Data.EvaluatedData.Attribute == GetArmorAttribute())
+	{
+		SetArmor(FMath::Clamp(GetArmor(),0,GetMaxArmor()));
 	}
 }
 
@@ -41,6 +48,7 @@ void UGASAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Out
 	DOREPLIFETIME_CONDITION_NOTIFY(UGASAttributeSet,Mana,COND_None,REPNOTIFY_OnChanged);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGASAttributeSet,MaxMana,COND_None,REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UGASAttributeSet,Armor,COND_None,REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UGASAttributeSet,MaxArmor,COND_None,REPNOTIFY_Always);
 	
 }
 
@@ -67,4 +75,9 @@ void UGASAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana)
 void UGASAttributeSet::OnRep_Armor(const FGameplayAttributeData& OldArmor)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UGASAttributeSet,Armor,OldArmor);
+}
+
+void UGASAttributeSet::OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UGASAttributeSet,MaxArmor,OldMaxArmor)
 }

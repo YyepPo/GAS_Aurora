@@ -1,13 +1,15 @@
 ﻿#include "EnemyBase.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
-#include "AbilitySystemBlueprintLibrary.h"
 AEnemyBase::AEnemyBase()
+
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	bReplicates = true;
+
 	GASAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("GAS Ability System Component"));
 	GASAbilitySystemComponent->SetIsReplicated(true);
-	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	check(GASAbilitySystemComponent);
 
 	// Attribute set is replicated by default
@@ -20,15 +22,8 @@ AEnemyBase::AEnemyBase()
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
-	{
-		if(HasAuthority())
-		{
-			GASAbilitySystemComponent->AddCharacterAbilities(DefaultAbilityClasses);
-			GASAbilitySystemComponent->AddDefaultGameplayEffects(DefaultGameplayEffectClass);
-		}
-	}
+	
+	InitAbilityInfo();
 }
 
 UAbilitySystemComponent* AEnemyBase::GetAbilitySystemComponent() const
@@ -36,4 +31,37 @@ UAbilitySystemComponent* AEnemyBase::GetAbilitySystemComponent() const
 	return GASAbilitySystemComponent;
 }
 
+void AEnemyBase::InitAbilityInfo()
+{
+	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
+	{
+		if(HasAuthority())
+		{
+			GASAbilitySystemComponent->AddCharacterAbilities(DefaultAbilityClasses);
+			GASAbilitySystemComponent->AddDefaultGameplayEffects(DefaultGameplayEffectClass);	
+		}
 
+		BindToAttributeCallbacks();
+	}}
+
+void AEnemyBase::BindToAttributeCallbacks()
+{
+	if(IsValid(GASAbilitySystemComponent) == false || IsValid(GASAttributeSet) == false)
+	{
+		return;
+	}
+
+	// On Health Value Changed
+	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetHealthAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnHealthChanged(Data.NewValue,GASAttributeSet->GetMaxHealth());
+		});
+
+	// On Armor Value Changed
+	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetArmorAttribute()).AddLambda(
+		[this](const FOnAttributeChangeData& Data)
+		{
+			OnArmorChagned(Data.NewValue,GASAttributeSet->GetMaxArmor());
+		});
+}

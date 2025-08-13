@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "AttributeSet/GASAttributeSet.h"
+#include "Character/GASCharacterBase.h"
 #include "GASCharacter.generated.h"
 
 /**
@@ -27,7 +27,7 @@ struct FGASReplicatedAcceleration
 };
 
 UCLASS(config=Game)
-class AGASCharacter : public ACharacter,public  IAbilitySystemInterface
+class AGASCharacter : public AGASCharacterBase,public  IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -88,6 +88,8 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	virtual void InitAbilityInfo() override;
+
 private:
 
 	//~GAS Related Properties
@@ -96,15 +98,6 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UGASAttributeSet> GASAttributeSet;
-
-	UPROPERTY(EditAnywhere,Category = "Abilities|Default")
-		TArray<TSubclassOf<UGameplayAbility>> DefaultGameplayAbilityClasses;
-	UPROPERTY(EditAnywhere,Category = "Abilities|Default")
-		TArray<TSubclassOf<UGameplayAbility>> DefaultPassiveGameplayAbilityClasses;
-	UPROPERTY(EditAnywhere,Category = "Abilities|Default")
-		TSubclassOf<UGameplayEffect> DefaultGameplayEffectClass ;
-	
-	void InitAbilityInfo();
 	//~End GAS Related Properties
 
 	UPROPERTY(Transient,ReplicatedUsing = OnRep_ReplicatedAcceleration)

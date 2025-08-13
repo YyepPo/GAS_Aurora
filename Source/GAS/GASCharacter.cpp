@@ -15,9 +15,8 @@
 #include "Character/GASMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 
-AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer)
-	// Set Character Movement Class To Be UGASMovementComponent 
-	: Super(ObjectInitializer.SetDefaultSubobjectClass<UGASMovementComponent>(ACharacter::CharacterMovementComponentName))
+AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer):
+ Super(ObjectInitializer.SetDefaultSubobjectClass<UGASMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -134,8 +133,7 @@ void AGASCharacter::InitAbilityInfo()
     			
     			if(HasAuthority())
     			{
-    				GameplayAbilitySystemComponent->AddCharacterAbilities(DefaultGameplayAbilityClasses);
-    				GameplayAbilitySystemComponent->AddCharacterPassiveAbilities(DefaultPassiveGameplayAbilityClasses);
+    				GameplayAbilitySystemComponent->AddCharacterAbilities(DefaultAbilityClasses);
     				GameplayAbilitySystemComponent->AddDefaultGameplayEffects(DefaultGameplayEffectClass);
     			}
     		}
