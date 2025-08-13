@@ -1,5 +1,8 @@
 ﻿#include "EnemyBase.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
+#include "GAS/DataAssets/CharacterInfoDataAsset.h"
+#include "GAS/Other/GASBlueprintFunctionLibrary.h"
+
 AEnemyBase::AEnemyBase()
 
 {
@@ -35,12 +38,7 @@ void AEnemyBase::InitAbilityInfo()
 {
 	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
 	{
-		if(HasAuthority())
-		{
-			GASAbilitySystemComponent->AddCharacterAbilities(DefaultAbilityClasses);
-			GASAbilitySystemComponent->AddDefaultGameplayEffects(DefaultGameplayEffectClass);	
-		}
-
+		InitializeCharacterInfo();
 		BindToAttributeCallbacks();
 	}}
 
@@ -62,6 +60,26 @@ void AEnemyBase::BindToAttributeCallbacks()
 	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetArmorAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
-			OnArmorChagned(Data.NewValue,GASAttributeSet->GetMaxArmor());
+			OnArmorChanged(Data.NewValue,GASAttributeSet->GetMaxArmor());
 		});
+}
+
+void AEnemyBase::InitializeCharacterInfo()
+{
+	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
+	{
+		if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
+		{
+			if(const FCharacterInfo* FoundCharacterInfo = CharacterInfoDataAsset->CharacterInfo.Find(CharacterTag))
+			{
+				GASAbilitySystemComponent->AddCharacterAbilities(FoundCharacterInfo->DefaultAbilityClasses);
+				GASAbilitySystemComponent->AddCharacterAbilitiesAndActivate(FoundCharacterInfo->DefaultAutoActivatedAbilityClasses);
+				GASAbilitySystemComponent->AddDefaultGameplayEffects(FoundCharacterInfo->DefaultGameplayEffectClass);
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("No Character Tag Selected For Actor: %s"),*GetNameSafe(this)));
+			}
+		}
+	}
 }

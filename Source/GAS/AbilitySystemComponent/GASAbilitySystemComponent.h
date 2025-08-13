@@ -17,6 +17,7 @@ public:
 	UGASAbilitySystemComponent();
 	
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
+	void AddCharacterAbilitiesAndActivate(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& PassiveAbilities);
 		
 	void RemoveCharacterAllAbilities();

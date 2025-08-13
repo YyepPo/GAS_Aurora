@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "GASAbility.h"
 #include "Abilities/GameplayAbility.h"
 #include "UMeleeEventReceiverAbility.generated.h"
 
 UCLASS()
-class GAS_API UUMeleeEventReceiverAbility : public UGameplayAbility
+class GAS_API UUMeleeEventReceiverAbility : public UGASAbility
 {
 	GENERATED_BODY()
 

@@ -16,6 +16,29 @@ void UGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<
 			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
 			GiveAbility(GameplayAbilitySpec);
 		}
+		else
+		{
+			UE_LOG(LogTemp, Warning,TEXT("Select ability is not type of UGASAbility"));
+		}
+	}
+}
+
+void UGASAbilitySystemComponent::AddCharacterAbilitiesAndActivate(
+	const TArray<TSubclassOf<UGameplayAbility>>& Abilities)
+{
+	for (const TSubclassOf<UGameplayAbility>& Ability : Abilities)
+	{
+		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(Ability,1);
+		if(const UGASAbility* GASAbility = Cast<UGASAbility>(GameplayAbilitySpec.Ability))
+		{
+			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
+			GiveAbility(GameplayAbilitySpec);
+			TryActivateAbility(GameplayAbilitySpec.Handle);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning,TEXT("Select ability is not type of UGASAbility"));
+		}
 	}
 }
 

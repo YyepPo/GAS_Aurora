@@ -25,12 +25,13 @@ protected:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	virtual void InitAbilityInfo() override;
 	virtual void BindToAttributeCallbacks() override;
+	
 public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnHealthChanged(float CurrentValue,float MaxHealth);
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnArmorChagned(float CurrentValue,float MaxArmor);
+		void OnArmorChanged(float CurrentValue,float MaxArmor);
 	
 private:
 
@@ -38,4 +39,8 @@ private:
 		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true),Category = "GAS")
 		TObjectPtr<UGASAttributeSet> GASAttributeSet;
+
+	void InitializeCharacterInfo();
+	UPROPERTY(EditDefaultsOnly,meta = (AllowPrivateAccess = true),Category = "GAS|Tag")
+	FGameplayTag CharacterTag;
 };

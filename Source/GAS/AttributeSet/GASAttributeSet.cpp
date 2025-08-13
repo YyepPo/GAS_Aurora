@@ -1,8 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GASAttributeSet.h"
-#include "GameplayEffectExtension.h"       // For PostGameplayEffectExecute function
+#include "GameplayEffectExtension.h"
 #include "Net/UnrealNetwork.h"
 
 void UGASAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -18,12 +15,18 @@ void UGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 	{
 		const float LocalDamageDone = GetDamage();
 		SetDamage(0.f);
-		
-		const float NewHealth = GetHealth() - LocalDamageDone;
-		SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+
+		const float NewArmor = GetArmor() - LocalDamageDone;
+		SetArmor(FMath::Clamp(NewArmor,0,GetMaxArmor()));
+
+		if(GetArmor() == 0)
+		{
+			const float NewHealth = GetHealth() - LocalDamageDone;
+			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));	
+		}
 	}
 
-	if(Data.EvaluatedData.Attribute == GetHealthAttribute())
+	if(Data.EvaluatedData.Attribute == GetHealthAttribute() && GetArmor() == 0)
 	{
 		SetHealth(FMath::Clamp(GetHealth(),0,GetMaxHealth()));
 	}
