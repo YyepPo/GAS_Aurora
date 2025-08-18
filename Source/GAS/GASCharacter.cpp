@@ -13,6 +13,8 @@
 #include "GASPlayerState.h"
 
 #include "Character/GASMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer):
@@ -53,6 +55,9 @@ AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer):
 
 	// Create AbilitySystem Component
 	GameplayAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("Gameplay Ability System Component"));
+	GameplayAbilitySystemComponent->SetIsReplicated(true);
+	GameplayAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	check(GameplayAbilitySystemComponent);
 	
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -166,7 +171,6 @@ void AGASCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
-	
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		

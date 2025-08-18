@@ -79,7 +79,6 @@ void UGASAbilitySystemComponent::RemoveCharacterAbility(const FGameplayAbilitySp
 	}
 }
 
-
 void UGASAbilitySystemComponent::OnAbilityInputPressed(FGameplayTag Tag)
 {
 	if(!Tag.IsValid())

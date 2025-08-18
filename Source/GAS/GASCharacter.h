@@ -51,6 +51,8 @@ class AGASCharacter : public AGASCharacterBase,public  IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	
+
 public:
 	
 	AGASCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());

@@ -11,6 +11,8 @@ struct FMeleeBoxHitInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FVector HitBoxLocation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FVector HitImpactLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float ImpulseForce;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float HitBoxRadius;
