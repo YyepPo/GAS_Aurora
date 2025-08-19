@@ -25,7 +25,7 @@ void UAuroraEAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle,
 		EndAbility(Handle,ActorInfo,ActivationInfo,false,true);
 		return;
 	}
-
+	
 	const bool bCanActivateAbility = CanActivateAbility(Handle,ActorInfo);
 	if(bCanActivateAbility == false)
 	{

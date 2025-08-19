@@ -13,4 +13,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		FGameplayTag AbilityTag;
+	UPROPERTY(EditDefaultsOnly)
+		float GameplayCooldown = 0.1;
 };
