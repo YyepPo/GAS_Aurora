@@ -33,7 +33,15 @@ void UGASAbilitySystemComponent::AddCharacterAbilitiesAndActivate(
 		{
 			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
 			GiveAbility(GameplayAbilitySpec);
-			TryActivateAbility(GameplayAbilitySpec.Handle);
+			const bool bactivated  = TryActivateAbility(GameplayAbilitySpec.Handle);
+			if(bactivated)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("activatedddd"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("activatedddd noooot"));	
+			}
 		}
 		else
 		{

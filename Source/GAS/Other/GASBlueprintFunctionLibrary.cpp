@@ -14,3 +14,17 @@ UCharacterInfoDataAsset* UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset
 	
 	return nullptr;
 }
+
+float UGASBlueprintFunctionLibrary::GetDirectionToTargetInDegress(const FVector& ActorForwardVector,
+	const FVector& DirectionToTarget)
+{
+	float DotProduct =	FVector::DotProduct(ActorForwardVector,DirectionToTarget);
+
+	float Acos = FMath::Acos(DotProduct);
+	Acos = FMath::RadiansToDegrees(Acos);
+
+	FVector CrossProduct = FVector::CrossProduct(ActorForwardVector, DirectionToTarget);
+	(CrossProduct.Z < 0) ? Acos *= -1 : Acos *= 1;
+
+	return Acos;
+}

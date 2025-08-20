@@ -12,7 +12,7 @@ AEnemyBase::AEnemyBase()
 
 	GASAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("GAS Ability System Component"));
 	GASAbilitySystemComponent->SetIsReplicated(true);
-	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	check(GASAbilitySystemComponent);
 
 	// Attribute set is replicated by default
@@ -66,7 +66,7 @@ void AEnemyBase::BindToAttributeCallbacks()
 
 void AEnemyBase::InitializeCharacterInfo()
 {
-	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
+	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet) && HasAuthority())
 	{
 		if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
 		{

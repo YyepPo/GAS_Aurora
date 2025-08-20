@@ -19,14 +19,15 @@ public:
 	void AddCharacterAbilities(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
 	void AddCharacterAbilitiesAndActivate(const TArray<TSubclassOf<UGameplayAbility>>& Abilities);
 	void AddCharacterPassiveAbilities(const TArray<TSubclassOf<UGameplayAbility>>& PassiveAbilities);
-		
-	void RemoveCharacterAllAbilities();
+
+	UFUNCTION(BlueprintCallable)
+		void RemoveCharacterAllAbilities();
 	void RemoveCharacterAbility(const FGameplayAbilitySpecHandle& AbilitySpecHandle);
 
 	void AddDefaultGameplayEffects(TSubclassOf<UGameplayEffect> DefaultAttributeEffect);
 
 	void OnAbilityInputPressed(FGameplayTag Tag);
-	void OnAbilityInputReleased( FGameplayTag Tag);
+	void OnAbilityInputReleased(FGameplayTag Tag);
 
 	UFUNCTION(BlueprintCallable)
 		void ActivateAbilityByTag(FGameplayTag AbilityTag);

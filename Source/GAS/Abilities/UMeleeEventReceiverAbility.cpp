@@ -6,6 +6,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GAS/AttributeSet/GASAttributeSet.h"
+#include "GAS/Other/GASBlueprintFunctionLibrary.h"
 
 UUMeleeEventReceiverAbility::UUMeleeEventReceiverAbility()
 {
@@ -27,12 +29,14 @@ void UUMeleeEventReceiverAbility::ActivateAbility(const FGameplayAbilitySpecHand
 	ASC = ActorInfo->AbilitySystemComponent.Get();
 	if(IsValid(ASC) == false)
 	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
 	OwnerCharacter = Cast<ACharacter>(ASC->GetAvatarActor());
 	if(IsValid(OwnerCharacter) == false)
 	{
+		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
@@ -73,17 +77,17 @@ void UUMeleeEventReceiverAbility::OnGameplayEventReceived(FGameplayEventData Pay
 
 	const FVector ActorForwardVector = OwnerCharacter->GetActorForwardVector();
 	const FVector DirectionToTarget = (Instigator->GetActorLocation() - OwnerCharacter->GetActorLocation()).GetSafeNormal();
-
-	float DotProduct =	FVector::DotProduct(ActorForwardVector,DirectionToTarget);
-
-	float Acos = FMath::Acos(DotProduct);
-	Acos = FMath::RadiansToDegrees(Acos);
-
-	FVector CrossProduct = FVector::CrossProduct(ActorForwardVector, DirectionToTarget);
-	(CrossProduct.Z < 0) ? Acos *= -1 : Acos *= 1;
-	
+	const float Acos = UGASBlueprintFunctionLibrary::GetDirectionToTargetInDegress(ActorForwardVector,DirectionToTarget);
+	 
 	PlayMontageBasedOnDirection(Acos);
 	ApplyForceToCharacterBasedOnDirection(DirectionToTarget * -HitBoxInfoWrapper->MeleeBoxHitInfo.ImpulseForce);
+
+	// Execute Hit Impact Cue
+	FGameplayTag HitImpactCueTag = FGameplayTag::RequestGameplayTag("GameplayCue.Enemy.Minion.HitImpact");
+	FGameplayCueParameters GameplayCueParameter;
+	GameplayCueParameter.Location = HitBoxInfoWrapper->MeleeBoxHitInfo.HitImpactLocation;
+	GameplayCueParameter.Instigator = GetAvatarActorFromActorInfo();
+	GetAbilitySystemComponentFromActorInfo()->ExecuteGameplayCue(HitImpactCueTag,GameplayCueParameter);
 }
 
 void UUMeleeEventReceiverAbility::PlayMontageBasedOnDirection(float Angle)

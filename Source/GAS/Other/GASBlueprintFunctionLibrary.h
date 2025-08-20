@@ -19,4 +19,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		static UCharacterInfoDataAsset* GetCharacterDataInfoAsset(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable)
+		static float GetDirectionToTargetInDegress(const FVector& ActorForwardVector,const FVector& DirectionToTarget);
 };
