@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/Character.h"
-#include "GAS/AttributeSet/GASAttributeSet.h"
+#include "GAS/Abilities/GASAbility.h"
+#include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
+#include "GAS/Interfaces/GASCharacterInterface.h"
 #include "GASCharacterBase.generated.h"
 
 UCLASS()
-class GAS_API AGASCharacterBase : public ACharacter
+class GAS_API AGASCharacterBase : public ACharacter,public IAbilitySystemInterface,public IGASCharacterInterface
 {
 	GENERATED_BODY()
 
@@ -19,13 +22,45 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void InitAbilityInfo();
 	virtual void BindToAttributeCallbacks();
 
 	//~ GAS Properties
-	UPROPERTY(EditDefaultsOnly,Category = "GAS")
-		TArray<TSubclassOf<UGameplayAbility>> DefaultAbilityClasses;
-	UPROPERTY(EditDefaultsOnly,Category = "GAS")
-		TSubclassOf<UGameplayEffect> DefaultGameplayEffectClass;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = true),Category = "GAS")
+		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
 	//~ End GAS Properties
+
+	//~ Ability System Interface
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	//~ End Ability System Interface
+	
+	//~ IGASCharacterInterface
+	virtual void Death_Implementation() override;
+	//~ End IGASCharacterInterface
+
+	//~ Death
+	UFUNCTION(Server,Reliable)
+		void Server_SetIsDead();
+		
+	UPROPERTY(ReplicatedUsing=OnRep_IsDead)
+		bool bIsDead = false;
+	UFUNCTION()
+		void OnRep_IsDead();
+	
+	// It gets called inside a replicated function
+    	virtual void OnDeath() {};
+	
+	UPROPERTY(EditDefaultsOnly,Category = "GAS|Ability")
+		TSubclassOf<UGASAbility> DeathAbilityClass;
+	//~ End Death
+
+	UPROPERTY(EditDefaultsOnly,Category = "GAS|Tag")
+		FGameplayTag CharacterTag;
+	
+private:
+	
+	//~ Death
+	
+	//~ End Death
 };

@@ -6,6 +6,7 @@
 #include "AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "AbilitySystemInterface.h"
 #include "AttributeSet/GASAttributeSet.h"
+#include "AttributeSet/GASHealthAttributeSet.h"
 #include "GameFramework/PlayerState.h"
 #include "GASPlayerState.generated.h"
 
@@ -32,7 +33,9 @@ public:
 	// Get AttributeSet
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE UGASAttributeSet* GetAttributeSet() const {return AttributeSet;}
-
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE UGASHealthAttributeSet* GetHealthAttributeSet() const {return HealthAttributeSet;}
+	
 	UPROPERTY(BlueprintAssignable)
 		FOnHealthValueChanged OnHealthValueChanged;
 	UPROPERTY(BlueprintAssignable)
@@ -41,9 +44,10 @@ public:
 private:
 
 	UPROPERTY(BlueprintReadOnly,meta = (AllowPrivateAccess = true))
-	TObjectPtr<UGASAbilitySystemComponent> AbilitySystemComponent;
+		TObjectPtr<UGASAbilitySystemComponent> AbilitySystemComponent;
 
 	UPROPERTY(BlueprintReadOnly,meta = (AllowPrivateAccess = true))
-	TObjectPtr<UGASAttributeSet> AttributeSet;
-
+		TObjectPtr<UGASAttributeSet> AttributeSet;
+	UPROPERTY(BlueprintReadOnly,meta = (AllowPrivateAccess = true))
+		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
 };

@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
-#include "GAS/AttributeSet/HealthAttributeSet.h"
+#include "GAS/AttributeSet/GASHealthAttributeSet.h"
 #include "GameFramework/Actor.h"
 #include "AuroraDecoy.generated.h"
 
@@ -36,7 +36,7 @@ private:
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true))
 		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true))
-		TObjectPtr<UHealthAttributeSet> HealthAttributeSet;
+		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
 	UPROPERTY(EditDefaultsOnly)
 		FGameplayTag CharacterTag;
 

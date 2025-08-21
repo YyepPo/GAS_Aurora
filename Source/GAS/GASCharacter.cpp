@@ -1,4 +1,3 @@
-
 #include "GASCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -9,13 +8,14 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "AbilitySystemComponent.h"
-
 #include "GASPlayerState.h"
-
 #include "Character/GASMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "DataAssets/CharacterInfoDataAsset.h"
 #include "Net/UnrealNetwork.h"
+#include "Other/GASBlueprintFunctionLibrary.h"
+
+struct FCharacterInfo;
+class UCharacterInfoDataAsset;
 
 AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer):
  Super(ObjectInitializer.SetDefaultSubobjectClass<UGASMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -52,12 +52,6 @@ AGASCharacter::AGASCharacter(const FObjectInitializer& ObjectInitializer):
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
-
-	// Create AbilitySystem Component
-	GameplayAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("Gameplay Ability System Component"));
-	GameplayAbilitySystemComponent->SetIsReplicated(true);
-	GameplayAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	check(GameplayAbilitySystemComponent);
 	
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
@@ -127,22 +121,49 @@ void AGASCharacter::InitAbilityInfo()
 	if(AGASPlayerState* GASPlayerState = GetPlayerState<AGASPlayerState>())
     	{
     		// Init Components from player state
-    		GameplayAbilitySystemComponent = GASPlayerState->GetAbilitySystemComp();
+    		GASAbilitySystemComponent = GASPlayerState->GetAbilitySystemComp();
     		GASAttributeSet = GASPlayerState->GetAttributeSet();
-    
+			GASHealthAttributeSet = GASPlayerState->GetHealthAttributeSet();
+		
     		// Init Ability Info for this character
-    		if(IsValid(GameplayAbilitySystemComponent))
+    		if(IsValid(GASAbilitySystemComponent))
     		{
     			// Info about this function -> Initialized the Abilities' ActorInfo - the structure that holds information about who we are acting on and who controls us
-    			GameplayAbilitySystemComponent->InitAbilityActorInfo(GASPlayerState,this);
-    			
-    			if(HasAuthority())
+    			GASAbilitySystemComponent->InitAbilityActorInfo(GASPlayerState,this);
+
+    			if(HasAuthority() && IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
     			{
-    				GameplayAbilitySystemComponent->AddCharacterAbilities(DefaultAbilityClasses);
-    				GameplayAbilitySystemComponent->AddDefaultGameplayEffects(DefaultGameplayEffectClass);
+    				if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
+    				{
+    					if(const FCharacterInfo* FoundCharacterInfo = CharacterInfoDataAsset->CharacterInfo.Find(CharacterTag))
+    					{
+    						GASAbilitySystemComponent->AddCharacterAbilities(FoundCharacterInfo->DefaultAbilityClasses);
+    						// Activates the given abilities instantly
+    						GASAbilitySystemComponent->AddCharacterAbilitiesAndActivate(FoundCharacterInfo->DefaultAutoActivatedAbilityClasses);
+    						GASAbilitySystemComponent->AddDefaultGameplayEffects(FoundCharacterInfo->DefaultGameplayEffectClass);
+    					}
+    					else
+    					{
+    						GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("No Character Tag Selected For Actor: %s"),*GetNameSafe(this)));
+    					}
+    				}
     			}
     		}
     	}
+	
+}
+
+void AGASCharacter::Death_Implementation()
+{
+	if(HasAuthority())
+	{
+		bIsDead = true;
+		OnRep_IsDead();
+	}
+	else
+	{
+		Server_SetIsDead();
+	}
 }
 
 void AGASCharacter::BeginPlay()

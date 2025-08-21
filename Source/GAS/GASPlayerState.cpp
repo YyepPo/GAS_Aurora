@@ -1,5 +1,7 @@
 ﻿#include "GASPlayerState.h"
 
+#include "AttributeSet/GASHealthAttributeSet.h"
+
 AGASPlayerState::AGASPlayerState()
 {
 	NetUpdateFrequency = 100.f;
@@ -11,18 +13,19 @@ AGASPlayerState::AGASPlayerState()
 	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 	AttributeSet = CreateDefaultSubobject<UGASAttributeSet>(TEXT("Attribute Set"));
+	HealthAttributeSet = CreateDefaultSubobject<UGASHealthAttributeSet>(TEXT("Health Attribute Set"));
 }
 
 void AGASPlayerState::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(IsValid(AbilitySystemComponent) && IsValid(AttributeSet))
+	if(IsValid(AbilitySystemComponent) && IsValid(AttributeSet) && IsValid(HealthAttributeSet))
 	{
-		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute()).AddLambda(
+		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute()).AddLambda(
 			[this] (const FOnAttributeChangeData& Data)
 			{
-				OnHealthValueChanged.Broadcast(Data.NewValue,AttributeSet->GetMaxHealth());	
+				OnHealthValueChanged.Broadcast(Data.NewValue,HealthAttributeSet->GetMaxHealth());	
 			});
 
 		AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetManaAttribute()).AddLambda(

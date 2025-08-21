@@ -148,6 +148,8 @@ void UGASAbilitySystemComponent::ActivateAbilityByTag(FGameplayTag AbilityTag)
 			if(AbilitySpec.IsActive() == false)
 			{
 				TryActivateAbility(AbilitySpec.Handle);
+				UE_LOG(LogTemp, Warning, TEXT("Ability: Activate death ability"));
+
 			}
 			else
 			{
@@ -155,6 +157,7 @@ void UGASAbilitySystemComponent::ActivateAbilityByTag(FGameplayTag AbilityTag)
 					AbilitySpec.Handle,
 					AbilitySpec.ActivationInfo.GetActivationPredictionKey());
 			}
+			UE_LOG(LogTemp, Warning, TEXT("Ability: Death ability found"));
 		}
 	}
 }

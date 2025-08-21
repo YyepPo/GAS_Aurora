@@ -5,6 +5,7 @@
 #include "AbilitySystemInterface.h"
 #include "AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "AttributeSet/GASAttributeSet.h"
+#include "AttributeSet/GASHealthAttributeSet.h"
 #include "Character/GASCharacterBase.h"
 #include "GASCharacter.generated.h"
 
@@ -27,7 +28,7 @@ struct FGASReplicatedAcceleration
 };
 
 UCLASS(config=Game)
-class AGASCharacter : public AGASCharacterBase,public  IAbilitySystemInterface
+class AGASCharacter : public AGASCharacterBase
 {
 	GENERATED_BODY()
 
@@ -51,8 +52,6 @@ class AGASCharacter : public AGASCharacterBase,public  IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
-	
-
 public:
 	
 	AGASCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
@@ -63,13 +62,6 @@ public:
 	virtual void PreReplication(IRepChangedPropertyTracker& ChangedPropertyTracker) override;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	//~End Of Actor Interface
-
-	
-	/** Returns AbilitySystemComponent,this function is part of the  IAbilitySystemInterface **/
-    virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override
-    {
-    	return GameplayAbilitySystemComponent;
-    }
 
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -92,14 +84,17 @@ protected:
 
 	virtual void InitAbilityInfo() override;
 
+	//~ Death
+	virtual void Death_Implementation() override;
+	//~ End Death
+
 private:
 
 	//~GAS Related Properties
-	UPROPERTY(EditAnywhere,BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
-		TObjectPtr<UGASAbilitySystemComponent> GameplayAbilitySystemComponent;
-	
 	UPROPERTY(BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UGASAttributeSet> GASAttributeSet;
+	UPROPERTY(BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UGASHealthAttributeSet> GASHealthAttributeSet;
 	//~End GAS Related Properties
 
 	UPROPERTY(Transient,ReplicatedUsing = OnRep_ReplicatedAcceleration)

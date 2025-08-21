@@ -29,20 +29,6 @@ protected:
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 public:
-	
-	// Health Attribute
-	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Health,Category = "Attributes")
-		FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UGASAttributeSet, Health);
-	UFUNCTION()
-		void OnRep_Health(const FGameplayAttributeData& OldHealth);
-	
-	// Max Health Attribute
-	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Health,Category = "Attributes")
-		FGameplayAttributeData MaxHealth;
-	ATTRIBUTE_ACCESSORS(UGASAttributeSet, MaxHealth);
-	UFUNCTION()
-		void OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth);
 
 	// Mana Attribute
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Mana, BlueprintReadOnly, Category = "Attributes")
@@ -57,24 +43,5 @@ public:
 	ATTRIBUTE_ACCESSORS(UGASAttributeSet,MaxMana)
 	UFUNCTION()
 		void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
-
-	// Armor Attribute
-	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Armor, BlueprintReadOnly, Category = "Attributes")
-    		FGameplayAttributeData Armor;
-	ATTRIBUTE_ACCESSORS(UGASAttributeSet,Armor)
-	UFUNCTION()
-    		void OnRep_Armor(const FGameplayAttributeData& OldArmor);
-
-	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_MaxArmor, BlueprintReadOnly, Category = "Attributes")
-		FGameplayAttributeData MaxArmor;
-	ATTRIBUTE_ACCESSORS(UGASAttributeSet,MaxArmor)
-	UFUNCTION()
-		void OnRep_MaxArmor(const FGameplayAttributeData& OldMaxArmor);
-	
-	// Damage is a meta attribute used by the DamageExecution to calculate final damage, which then turns into -Health
-	// Temporary value that only exists on the Server. Not replicated.
-	UPROPERTY(BlueprintReadOnly, Category = "Damage")
-		FGameplayAttributeData Damage;
-	ATTRIBUTE_ACCESSORS(UGASAttributeSet, Damage)
 
 };

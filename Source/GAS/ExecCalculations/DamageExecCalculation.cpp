@@ -1,6 +1,5 @@
 #include "GAS/ExecCalculations/DamageExecCalculation.h"
-
-#include "GAS/AttributeSet/GASAttributeSet.h"
+#include "GAS/AttributeSet/GASHealthAttributeSet.h"
 
 // Declare the attributes to capture and define how we want to capture them from the Source and Target.
 struct GDDamageStatics
@@ -11,10 +10,10 @@ struct GDDamageStatics
 	GDDamageStatics()
 	{
 		// Capture optional Damage set on the damage GE as a CalculationModifier under the ExecutionCalculation
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UGASAttributeSet, Damage, Source, true);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UGASHealthAttributeSet, Damage, Source, true);
 
 		// Capture the Target's Armor. Don't snapshot.
-		DEFINE_ATTRIBUTE_CAPTUREDEF(UGASAttributeSet, Armor, Target, false);
+		DEFINE_ATTRIBUTE_CAPTUREDEF(UGASHealthAttributeSet, Armor, Target, false);
 	}
 };
 

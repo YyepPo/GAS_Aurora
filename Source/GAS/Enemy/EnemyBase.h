@@ -3,14 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "AbilitySystemInterface.h"
-#include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
-#include "GAS/AttributeSet/GASAttributeSet.h"
+#include "GAS/AttributeSet/GASHealthAttributeSet.h"
 #include "GAS/Character/GASCharacterBase.h"
 #include "EnemyBase.generated.h"
 
 UCLASS()
-class GAS_API AEnemyBase : public AGASCharacterBase,public IAbilitySystemInterface
+class GAS_API AEnemyBase : public AGASCharacterBase
 {
 	GENERATED_BODY()
 
@@ -22,25 +20,33 @@ protected:
 
 	virtual void BeginPlay() override;
 
-	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+	
 	virtual void InitAbilityInfo() override;
 	virtual void BindToAttributeCallbacks() override;
+
+	//~ Death
+	virtual void Death_Implementation() override;
+	virtual void OnDeath() override;
+	//~ End Death
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
 	
 public:
 
+    //~ Attribute Change Delegates
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnHealthChanged(float CurrentValue,float MaxHealth);
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnArmorChanged(float CurrentValue,float MaxArmor);
+	//~ End Attribute Change Delegates
 	
 private:
 
+	//~ GAS Properties
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true),Category = "GAS")
-		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
-	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true),Category = "GAS")
-		TObjectPtr<UGASAttributeSet> GASAttributeSet;
-
+		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
+	//~ End GAS Properties
+	
 	void InitializeCharacterInfo();
-	UPROPERTY(EditDefaultsOnly,meta = (AllowPrivateAccess = true),Category = "GAS|Tag")
-	FGameplayTag CharacterTag;
 };

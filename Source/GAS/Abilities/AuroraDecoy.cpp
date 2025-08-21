@@ -17,7 +17,7 @@ AAuroraDecoy::AAuroraDecoy()
 	check(GASAbilitySystemComponent);
 
 	// Initialize Health Attribute Set
-	HealthAttributeSet = CreateDefaultSubobject<UHealthAttributeSet>(TEXT("Health Attribute Set"));
+	HealthAttributeSet = CreateDefaultSubobject<UGASHealthAttributeSet>(TEXT("Health Attribute Set"));
 	check(HealthAttributeSet);
 }
 

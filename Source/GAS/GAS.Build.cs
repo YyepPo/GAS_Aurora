@@ -16,7 +16,8 @@ public class GAS : ModuleRules
 			"EnhancedInput",
 			"GameplayAbilities",
 			"GameplayTags",
-			"GameplayTasks"
+			"GameplayTasks",
+			"UMG"
 		});
 	}
 }

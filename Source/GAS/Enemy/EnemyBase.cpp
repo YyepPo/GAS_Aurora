@@ -1,23 +1,25 @@
 ﻿#include "EnemyBase.h"
+
+#include "Components/CapsuleComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "GAS/DataAssets/CharacterInfoDataAsset.h"
 #include "GAS/Other/GASBlueprintFunctionLibrary.h"
 
 AEnemyBase::AEnemyBase()
-
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	// Replicate this actor
 	bReplicates = true;
 
-	GASAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("GAS Ability System Component"));
-	GASAbilitySystemComponent->SetIsReplicated(true);
-	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
-	check(GASAbilitySystemComponent);
+	// Create Health Attribute Set
+	HealthAttributeSet = CreateDefaultSubobject<UGASHealthAttributeSet>(TEXT("GAS Attribute Set"));
+	check(HealthAttributeSet);
 
-	// Attribute set is replicated by default
-	GASAttributeSet = CreateDefaultSubobject<UGASAttributeSet>(TEXT("GAS Attribute Set"));
-	check(GASAttributeSet);
+	// Create Overhead widget component that is going to display health & mana bar
+	OverheadWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Overhead Widget Component"));
+	OverheadWidgetComponent->SetupAttachment(GetRootComponent());
 
 	GetMesh()->SetSimulatePhysics(false);
 }
@@ -29,14 +31,9 @@ void AEnemyBase::BeginPlay()
 	InitAbilityInfo();
 }
 
-UAbilitySystemComponent* AEnemyBase::GetAbilitySystemComponent() const
-{
-	return GASAbilitySystemComponent;
-}
-
 void AEnemyBase::InitAbilityInfo()
 {
-	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
+	if(IsValid(GASAbilitySystemComponent) && IsValid(HealthAttributeSet))
 	{
 		InitializeCharacterInfo();
 		BindToAttributeCallbacks();
@@ -44,29 +41,53 @@ void AEnemyBase::InitAbilityInfo()
 
 void AEnemyBase::BindToAttributeCallbacks()
 {
-	if(IsValid(GASAbilitySystemComponent) == false || IsValid(GASAttributeSet) == false)
+	if(IsValid(GASAbilitySystemComponent) == false || IsValid(HealthAttributeSet) == false)
 	{
 		return;
 	}
 
 	// On Health Value Changed
-	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetHealthAttribute()).AddLambda(
+	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
-			OnHealthChanged(Data.NewValue,GASAttributeSet->GetMaxHealth());
+			OnHealthChanged(Data.NewValue,HealthAttributeSet->GetMaxHealth());
 		});
 
 	// On Armor Value Changed
-	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetArmorAttribute()).AddLambda(
+	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetArmorAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
-			OnArmorChanged(Data.NewValue,GASAttributeSet->GetMaxArmor());
+			OnArmorChanged(Data.NewValue,HealthAttributeSet->GetMaxArmor());
 		});
+}
+
+void AEnemyBase::Death_Implementation()
+{
+	Server_SetIsDead();
+
+	if(HasAuthority())
+	{
+		FTimerHandle DeathTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(DeathTimerHandle, [this]()
+            {
+                Destroy();
+            }, 1.0f, false);
+	}
+}
+
+void AEnemyBase::OnDeath()
+{
+	GetMesh()->SetVisibility(false);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel2,ECR_Ignore);
+	if(IsValid(OverheadWidgetComponent))
+	{
+		OverheadWidgetComponent->DestroyComponent();
+	}
 }
 
 void AEnemyBase::InitializeCharacterInfo()
 {
-	if(IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet) && HasAuthority())
+	if(IsValid(GASAbilitySystemComponent) && IsValid(HealthAttributeSet) && HasAuthority())
 	{
 		if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
 		{
