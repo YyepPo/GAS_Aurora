@@ -8,11 +8,13 @@ UCLASS()
 class GAS_API UGASAbility : public UGameplayAbility
 {
 	GENERATED_BODY()
-
+	
 public:
 
+	UGASAbility();
+
 	UPROPERTY(EditDefaultsOnly)
-		FGameplayTag AbilityTag;
-	UPROPERTY(EditDefaultsOnly)
+		FGameplayTag InputAbilityTag;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
 		float GameplayCooldown = 0.1;
 };

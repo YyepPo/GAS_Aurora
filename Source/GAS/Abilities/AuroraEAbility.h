@@ -38,6 +38,6 @@ private:
 
 	bool IsIceSpikeDataAssetValid() const;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = true))
 		class UIceSpikeDataAsset* IceSpikeDataAsset;
 };

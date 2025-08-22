@@ -13,7 +13,7 @@ void UGASAbilitySystemComponent::AddCharacterAbilities(const TArray<TSubclassOf<
 		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(Ability,1);
 		if(const UGASAbility* GASAbility = Cast<UGASAbility>(GameplayAbilitySpec.Ability))
 		{
-			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
+			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->InputAbilityTag);
 			GiveAbility(GameplayAbilitySpec);
 		}
 		else
@@ -31,7 +31,7 @@ void UGASAbilitySystemComponent::AddCharacterAbilitiesAndActivate(
 		FGameplayAbilitySpec GameplayAbilitySpec = FGameplayAbilitySpec(Ability,1);
 		if(const UGASAbility* GASAbility = Cast<UGASAbility>(GameplayAbilitySpec.Ability))
 		{
-			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->AbilityTag);
+			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->InputAbilityTag);
 			GiveAbility(GameplayAbilitySpec);
 			const bool bactivated  = TryActivateAbility(GameplayAbilitySpec.Handle);
 			if(bactivated)

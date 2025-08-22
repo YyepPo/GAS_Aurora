@@ -2,3 +2,8 @@
 
 
 #include "GASAbility.h"
+
+UGASAbility::UGASAbility()
+{
+	
+}
