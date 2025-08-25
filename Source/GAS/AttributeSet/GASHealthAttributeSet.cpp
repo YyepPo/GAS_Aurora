@@ -1,6 +1,6 @@
-﻿#include "GameplayEffectExtension.h"
+﻿
 #include "GASHealthAttributeSet.h"
-
+#include "GameplayEffectExtension.h"
 #include "GAS/Interfaces/GASCharacterInterface.h"
 #include "Net/UnrealNetwork.h"
 

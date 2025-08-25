@@ -13,25 +13,21 @@ AAuroraDecoy::AAuroraDecoy()
 	// Initialize GAS Ability System Component
 	GASAbilitySystemComponent = CreateDefaultSubobject<UGASAbilitySystemComponent>(TEXT("GAS Ability System Component"));
 	GASAbilitySystemComponent->SetIsReplicated(true);
-	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	GASAbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	check(GASAbilitySystemComponent);
 
-	// Initialize Health Attribute Set
-	HealthAttributeSet = CreateDefaultSubobject<UGASHealthAttributeSet>(TEXT("Health Attribute Set"));
-	check(HealthAttributeSet);
+	GASAttributeSet = CreateDefaultSubobject<UGASHealthAttributeSet>(TEXT("Health Attribute Set"));
+	check(GASAttributeSet);
 }
 
 void AAuroraDecoy::BeginPlay()
 {
 	Super::BeginPlay();
-
-	InitGameplayEffect();
-	BindToAttributeCallbacks();
 }
 
 void AAuroraDecoy::InitGameplayEffect()
 {
-	if(IsValid(GASAbilitySystemComponent) == false || IsValid(HealthAttributeSet) == false)
+	if(IsValid(GASAbilitySystemComponent) == false)// || IsValid(HealthAttributeSet) == false)
 	{
 		return;
 	}
@@ -51,16 +47,23 @@ void AAuroraDecoy::InitGameplayEffect()
 
 void AAuroraDecoy::BindToAttributeCallbacks()
 {
-	if(IsValid(GASAbilitySystemComponent) == false || IsValid(HealthAttributeSet) == false)
+	if(IsValid(GASAbilitySystemComponent) == false)
 	{
+		GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("Aurora Decoy: GASAbilitySystemComponent is not valid")));
 		return;
 	}
-
+	
+	if(IsValid(GASAttributeSet) == false)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("Aurora Decoy: GASAttributeSet is not valid")));
+		return;
+	}
+	
 	// On Health Value Changed
-	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(HealthAttributeSet->GetHealthAttribute()).AddLambda(
+	GASAbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(GASAttributeSet->GetHealthAttribute()).AddLambda(
 		[this](const FOnAttributeChangeData& Data)
 		{
-			OnHealthChanged(Data.NewValue,HealthAttributeSet->GetMaxHealth());
+			OnHealthChanged(Data.NewValue,GASAttributeSet->GetMaxHealth());
 		});
 
 }

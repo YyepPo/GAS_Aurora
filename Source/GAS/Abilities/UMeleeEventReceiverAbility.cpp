@@ -6,7 +6,6 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "GAS/AttributeSet/GASAttributeSet.h"
 #include "GAS/Other/GASBlueprintFunctionLibrary.h"
 
 UUMeleeEventReceiverAbility::UUMeleeEventReceiverAbility()
@@ -40,15 +39,15 @@ void UUMeleeEventReceiverAbility::ActivateAbility(const FGameplayAbilitySpecHand
 		return;
 	}
 
-	FGameplayTag EventTag = FGameplayTag::RequestGameplayTag("Event.Melee.Hit");
-	if (!EventTag.IsValid())
+	FGameplayTag MeleeHitEventTag = FGameplayTag::RequestGameplayTag("Event.Melee.Hit");
+	if (MeleeHitEventTag.IsValid() == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Invalid gameplay tag: Event.Melee.Hit"));
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
 
-	UAbilityTask_WaitGameplayEvent* WaitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, EventTag, nullptr, false, false);
+	UAbilityTask_WaitGameplayEvent* WaitTask = UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(this, MeleeHitEventTag, nullptr, false, false);
 	if (WaitTask)
 	{
 		WaitTask->EventReceived.AddDynamic(this, &UUMeleeEventReceiverAbility::OnGameplayEventReceived);
@@ -75,6 +74,7 @@ void UUMeleeEventReceiverAbility::OnGameplayEventReceived(FGameplayEventData Pay
 		return;
 	}
 
+	// Calculate Direction
 	const FVector ActorForwardVector = OwnerCharacter->GetActorForwardVector();
 	const FVector DirectionToTarget = (Instigator->GetActorLocation() - OwnerCharacter->GetActorLocation()).GetSafeNormal();
 	const float Acos = UGASBlueprintFunctionLibrary::GetDirectionToTargetInDegress(ActorForwardVector,DirectionToTarget);

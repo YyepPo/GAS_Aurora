@@ -3,8 +3,8 @@
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
-#include "GAS/AttributeSet/GASHealthAttributeSet.h"
 #include "GameFramework/Actor.h"
+#include "GAS/AttributeSet/GASHealthAttributeSet.h"
 #include "AuroraDecoy.generated.h"
 
 class UGASAbilitySystemComponent;
@@ -30,16 +30,18 @@ protected:
 	{
 		return GASAbilitySystemComponent;
 	}
+
+	UFUNCTION(BlueprintCallable)
+		void InitGameplayEffect();
+	UFUNCTION(BlueprintCallable)
+		void BindToAttributeCallbacks();
 	
 private:
 
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true))
 		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true))
-		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
+		TObjectPtr<UGASHealthAttributeSet> GASAttributeSet;
 	UPROPERTY(EditDefaultsOnly)
-		FGameplayTag CharacterTag;
-
-	void InitGameplayEffect();
-	void BindToAttributeCallbacks();
+		FGameplayTag CharacterTag;	
 };

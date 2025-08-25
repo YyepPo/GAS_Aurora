@@ -35,9 +35,11 @@ protected:
 	UFUNCTION(Blueprintable,BlueprintImplementableEvent)
 		void EnableMovement(bool bEnabled);
 private:
-
-	bool IsIceSpikeDataAssetValid() const;
 	
+	bool IsIceSpikeDataAssetValid() const;
+
+	void FreezeEnemies(const FVector_NetQuantize& Location);
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = true))
 		class UIceSpikeDataAsset* IceSpikeDataAsset;
 };

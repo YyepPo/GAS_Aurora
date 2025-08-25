@@ -139,44 +139,49 @@ void UAuroraEAbility::OnMontageAnimNotifyTriggered(FName AnimNotifyText)
             const int32 a = (i + 1) % Locations.Num();
             const FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(Locations[i], Locations[a]);
 			LookAtRotations.Emplace(Rotation.Vector());
-            if (GetAvatarActorFromActorInfo()->HasAuthority())
-            {
-                const TArray<AActor*> ActorsToIgnore;
-                FHitResult OutHit;
-                const bool bHit = UKismetSystemLibrary::SphereTraceSingle(
-                    GetWorld(),
-                    Locations[i],
-                    Locations[i],
-                    50.0f,
-                    ETraceTypeQuery::TraceTypeQuery1,
-                    false,
-                    ActorsToIgnore,
-                    EDrawDebugTrace::ForDuration,
-                    OutHit,
-                    true,
-                    FLinearColor::Red,
-                    FLinearColor::Green,
-                    5.0f
-                );
-
-                if (bHit)
-                {
-                    AActor* HitActor = OutHit.GetActor();
-                    if (HitActor && HitActor->ActorHasTag("Character"))
-                    {
-                        if (IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(HitActor))
-                        {
-                            if (UGASAbilitySystemComponent* TargetASC = Cast<UGASAbilitySystemComponent>(AbilitySystemInterface->GetAbilitySystemComponent()))
-                            {
-                                FGameplayTag FreezeAbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Stunned"));
-                                TargetASC->ActivateAbilityByTag(FreezeAbilityTag);
-                            }
-                        }
-                    }
-                }
-            }
+        	
+            FreezeEnemies(Locations[i]);
         }
 		SpawnIceSparksVFXReplicated(Locations,LookAtRotations,EmitterScales);
+	}
+}
+
+void UAuroraEAbility::FreezeEnemies(const FVector_NetQuantize& Location)
+{
+	if (GetAvatarActorFromActorInfo()->HasAuthority())
+	{
+		const TArray<AActor*> ActorsToIgnore;
+		FHitResult OutHit;
+		const bool bHit = UKismetSystemLibrary::SphereTraceSingle(
+			GetWorld(),
+			Location,
+			Location,
+			50.0f,
+			ETraceTypeQuery::TraceTypeQuery1,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::ForDuration,
+			OutHit,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			5.0f
+		);
+		if (bHit)
+		{
+			AActor* HitActor = OutHit.GetActor();
+			if (HitActor && HitActor->ActorHasTag("Character"))
+			{
+				if (IAbilitySystemInterface* AbilitySystemInterface = Cast<IAbilitySystemInterface>(HitActor))
+				{
+					if (UGASAbilitySystemComponent* TargetASC = Cast<UGASAbilitySystemComponent>(AbilitySystemInterface->GetAbilitySystemComponent()))
+					{
+						FGameplayTag FreezeAbilityTag = FGameplayTag::RequestGameplayTag(TEXT("Ability.Stunned"));
+						TargetASC->ActivateAbilityByTag(FreezeAbilityTag);
+					}
+				}
+			}
+		}
 	}
 }
 
