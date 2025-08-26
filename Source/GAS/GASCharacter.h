@@ -84,9 +84,10 @@ protected:
 
 	virtual void InitAbilityInfo() override;
 
-	//~ Death
+	//~ Character Info Interface
+	virtual void AddExperience_Implementation(const FScalableFloat& Experience) override;
 	virtual void Death_Implementation() override;
-	//~ End Death
+	//~ End Character Info Interface
 
 private:
 

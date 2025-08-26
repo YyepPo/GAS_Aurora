@@ -40,6 +40,15 @@ public:
 		FOnHealthValueChanged OnHealthValueChanged;
 	UPROPERTY(BlueprintAssignable)
 		FOnManaValueChanged OnManaValueChanged;
+
+	//~ Level & Experience
+	UFUNCTION(BlueprintCallable)
+		void AddXP(const FScalableFloat& Experience);
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+		FORCEINLINE int32 GetCurrentLevel() const {return CurrentLevel;}
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+		FORCEINLINE int32 GetCurrentExperience() const {return CurrentExperience;}
+	//~ End Level & Experience
 	
 private:
 
@@ -50,4 +59,16 @@ private:
 		TObjectPtr<UGASAttributeSet> AttributeSet;
 	UPROPERTY(BlueprintReadOnly,meta = (AllowPrivateAccess = true))
 		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
-};
+	
+	//~ Level & Experience
+	int32 CurrentLevel = 1;
+	int32 CurrentExperience = 0;
+
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"),Category = "Experience")
+		FScalableFloat RequiredExperienceToLevelUp;
+	UPROPERTY(EditDefaultsOnly,Category = "Experience")
+		TSubclassOf<UGameplayEffect> LevelUpGameplayEffectClass;
+	void OnLevelUp() const;
+	
+	//~ End Level & Experience
+}; 

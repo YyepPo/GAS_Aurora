@@ -153,6 +153,14 @@ void AGASCharacter::InitAbilityInfo()
 	
 }
 
+void AGASCharacter::AddExperience_Implementation(const FScalableFloat& Experience)
+{
+	if(AGASPlayerState* GASPlayerState = GetController()->GetPlayerState<AGASPlayerState>())
+	{
+		GASPlayerState->AddXP(Experience);
+	}
+}
+
 void AGASCharacter::Death_Implementation()
 {
 	if(HasAuthority())

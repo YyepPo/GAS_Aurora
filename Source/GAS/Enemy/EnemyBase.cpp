@@ -22,6 +22,8 @@ AEnemyBase::AEnemyBase()
 	OverheadWidgetComponent->SetupAttachment(GetRootComponent());
 
 	GetMesh()->SetSimulatePhysics(false);
+
+	
 }
 
 void AEnemyBase::BeginPlay()
@@ -67,11 +69,31 @@ void AEnemyBase::Death_Implementation()
 
 	if(HasAuthority())
 	{
+		// Grant experience to the actor responsible for this character's death
+		if(HitActors.IsEmpty() == false)
+		{
+			for (TObjectPtr<AActor>& Actor : HitActors)
+			{
+				IGASCharacterInterface::Execute_AddExperience(Actor,ExperienceToReward);
+				GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Yellow,FString::Printf(TEXT("Player that hit this Actor: %s"),*Actor->GetActorNameOrLabel()));
+
+			}
+		}
+		
+		// Start Destroy Timer
 		FTimerHandle DeathTimerHandle;
             GetWorld()->GetTimerManager().SetTimer(DeathTimerHandle, [this]()
             {
                 Destroy();
             }, 1.0f, false);
+	}
+}
+
+void AEnemyBase::AddHitActor_Implementation(AActor* Actor)
+{
+	if(HitActors.Contains(Actor) == false)
+	{
+		HitActors.Emplace(Actor);
 	}
 }
 
@@ -87,7 +109,7 @@ void AEnemyBase::OnDeath()
 
 void AEnemyBase::InitializeCharacterInfo()
 {
-	if(IsValid(GASAbilitySystemComponent) && IsValid(HealthAttributeSet) && HasAuthority())
+	if(IsValid(GASAbilitySystemComponent) && IsValid(HealthAttributeSet))
 	{
 		if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
 		{
@@ -96,6 +118,11 @@ void AEnemyBase::InitializeCharacterInfo()
 				GASAbilitySystemComponent->AddCharacterAbilities(FoundCharacterInfo->DefaultAbilityClasses);
 				GASAbilitySystemComponent->AddCharacterAbilitiesAndActivate(FoundCharacterInfo->DefaultAutoActivatedAbilityClasses);
 				GASAbilitySystemComponent->AddDefaultGameplayEffects(FoundCharacterInfo->DefaultGameplayEffectClass);
+				ExperienceToReward = FoundCharacterInfo->ExperienceToRewardScale;
+				if(ExperienceToReward.IsValid())
+				{
+					GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,FString::Printf(TEXT("Experiece to reward is valid for enemy class")));	
+				}
 			}
 			else
 			{

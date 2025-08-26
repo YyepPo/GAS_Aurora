@@ -37,6 +37,8 @@ protected:
 	
 	//~ IGASCharacterInterface
 	virtual void Death_Implementation() override;
+	virtual void AddExperience_Implementation(const FScalableFloat& Experience) override;
+	virtual void AddHitActor_Implementation(AActor* Actor) override;
 	//~ End IGASCharacterInterface
 
 	//~ Death

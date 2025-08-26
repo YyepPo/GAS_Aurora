@@ -1,6 +1,7 @@
 ﻿
 #include "GASHealthAttributeSet.h"
 #include "GameplayEffectExtension.h"
+#include "GAS/Character/GASCharacterBase.h"
 #include "GAS/Interfaces/GASCharacterInterface.h"
 #include "Net/UnrealNetwork.h"
 
@@ -22,6 +23,8 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 {
 	Super::PostGameplayEffectExecute(Data);
 
+	FGameplayEffectContextHandle ContextHandle = Data.EffectSpec.GetContext();
+	
 	if(Data.EvaluatedData.Attribute == GetDamageAttribute())
 	{
 		const float LocalDamageDone = GetDamage();
@@ -34,23 +37,27 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 		{
 			const float NewHealth = GetHealth() - LocalDamageDone;
 			SetHealth(FMath::Clamp(NewHealth, 0.0f, GetMaxHealth()));
+			
+			// On Death
 			if(GetHealth() == 0)
 			{
-				if(AActor* TargetActor = Data.Target.GetAvatarActor())
+				AActor* TargetActor = Data.Target.GetAvatarActor();
+				if(IsValid(TargetActor) == false)
 				{
-					if(TargetActor->Implements<UGASCharacterInterface>())
-					{
-						IGASCharacterInterface::Execute_Death(TargetActor);
-						UE_LOG(LogTemp, Warning, TEXT("Death: Interface is valid in tartget actor"));
-					}
-					else
-					{
-						UE_LOG(LogTemp, Warning, TEXT("Death: Interface not valid in target actor"));
-					}
+					return;
 				}
-				else
+				
+				AActor* Instigator = ContextHandle.GetOriginalInstigatorAbilitySystemComponent()->GetAvatarActor();
+				if(Instigator && Instigator->IsA(AGASCharacterBase::StaticClass()) && Instigator->Implements<UGASCharacterInterface>() && Instigator->HasAuthority())
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Death: Target actor not valid"));
+					IGASCharacterInterface::Execute_AddHitActor(TargetActor,Instigator);
+					GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Yellow,FString::Printf(TEXT("Add hit actor interface function has benn called")));
+				}
+
+				// Execute Death interface function
+				if(TargetActor->Implements<UGASCharacterInterface>())
+				{
+					IGASCharacterInterface::Execute_Death(TargetActor);
 				}
 			}
 		}

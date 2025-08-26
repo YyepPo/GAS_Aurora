@@ -24,10 +24,13 @@ protected:
 	virtual void InitAbilityInfo() override;
 	virtual void BindToAttributeCallbacks() override;
 
-	//~ Death
+	//~ Character info interface
 	virtual void Death_Implementation() override;
+	virtual void AddHitActor_Implementation(AActor* Actor) override;
+	//~ End Character info interface
+	
 	virtual void OnDeath() override;
-	//~ End Death
+	
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<class UWidgetComponent> OverheadWidgetComponent;
@@ -47,6 +50,13 @@ private:
 	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess = true),Category = "GAS")
 		TObjectPtr<UGASHealthAttributeSet> HealthAttributeSet;
 	//~ End GAS Properties
+
+	UPROPERTY(EditDefaultsOnly)
+		FScalableFloat ExperienceToReward;
+
+	// Actors that dealt damage to this actor
+	UPROPERTY()
+		TArray<TObjectPtr<AActor>> HitActors;
 	
 	void InitializeCharacterInfo();
 };

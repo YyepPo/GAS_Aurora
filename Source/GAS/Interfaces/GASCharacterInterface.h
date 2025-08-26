@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "ScalableFloat.h"
 #include "UObject/Interface.h"
 #include "GASCharacterInterface.generated.h"
 
@@ -19,4 +20,9 @@ public:
 
 	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 		void Death();
+	
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+		void AddExperience(const FScalableFloat& Experience);
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+		void AddHitActor(AActor* Actor);
 };

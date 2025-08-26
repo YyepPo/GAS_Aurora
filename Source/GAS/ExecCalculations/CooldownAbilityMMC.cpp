@@ -14,12 +14,12 @@ float UCooldownAbilityMMC::CalculateBaseMagnitude_Implementation(const FGameplay
 		if (Cooldown <= 0.0f)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("CooldownAbilityMMC: GameplayCooldown is %f, returning 0.1 to avoid activation issues"), Cooldown);
-			return 0.1f; // Prevent zero or negative cooldowns
+			return 0.1f;
 		}
 		UE_LOG(LogTemp, Log, TEXT("CooldownAbilityMMC: Applying cooldown of %f seconds for ability %s"), Cooldown, *GetNameSafe(Ability));
 		return Cooldown;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("CooldownAbilityMMC: Ability is invalid, returning default cooldown of 0.1 seconds"));
-	return 0.1f; // Fallback to avoid ability activation issues
+	return 0.1f;
 }

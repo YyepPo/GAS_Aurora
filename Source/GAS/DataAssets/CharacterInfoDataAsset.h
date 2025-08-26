@@ -17,6 +17,8 @@ struct FCharacterInfo
 		TArray<TSubclassOf<UGameplayAbility>> DefaultAutoActivatedAbilityClasses;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<UGameplayEffect> DefaultGameplayEffectClass;
+	UPROPERTY(EditAnywhere)
+		FScalableFloat ExperienceToRewardScale;
 };
 
 UCLASS()

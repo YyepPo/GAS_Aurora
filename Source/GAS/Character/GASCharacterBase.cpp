@@ -46,6 +46,16 @@ void AGASCharacterBase::Death_Implementation()
 	
 }
 
+void AGASCharacterBase::AddExperience_Implementation(const FScalableFloat& Experience)
+{
+	
+}
+
+void AGASCharacterBase::AddHitActor_Implementation(AActor* Actor)
+{
+	
+}
+
 void AGASCharacterBase::Server_SetIsDead_Implementation()
 {
 	bIsDead = true;
