@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "GAS/InputComponent/GASInputConfig.h"
+#include "GAS/Inventory/InventoryComponent.h"
 #include "GASPlayerController.generated.h"
 
 /**
@@ -18,12 +19,14 @@ class GAS_API AGASPlayerController : public APlayerController
 
 public:
 
+	AGASPlayerController();
+	
 	virtual void BeginPlay() override;
 	
 	virtual void SetupInputComponent() override;
 	
 private:
-
+	
 	UPROPERTY(EditDefaultsOnly)
 		UGASInputConfig* InputConfig;
 
@@ -31,9 +34,11 @@ private:
 	void OnAbilityPressed(FGameplayTag Tag);
 	UFUNCTION()
 	void OnAbilityReleased(FGameplayTag Tag);
+	
+	TObjectPtr<UGASAbilitySystemComponent> GetGASAbilitySystemComponent();
 
 	UPROPERTY()
 		TObjectPtr<UGASAbilitySystemComponent> GASAbilitySystemComponent;
-	
-	TObjectPtr<UGASAbilitySystemComponent> GetGASAbilitySystemComponent();
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite,meta = (AllowPrivateAccess = "true"))
+		TObjectPtr<UInventoryComponent> InventoryComponent;
 };

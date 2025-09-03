@@ -4,6 +4,13 @@
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "GAS/InputComponent/GASEnhancedInputComponent.h"
 
+AGASPlayerController::AGASPlayerController()
+{
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory Component"));
+	InventoryComponent->SetIsReplicated(true);
+	checkf(InventoryComponent, TEXT("Inventory Component not found"));
+}
+
 void AGASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
