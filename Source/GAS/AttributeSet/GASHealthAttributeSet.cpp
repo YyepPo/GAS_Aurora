@@ -17,6 +17,11 @@ void UGASHealthAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty
 void UGASHealthAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetMaxHealthAttribute())
+	{
+		PreviousMaxHealth = MaxHealth.GetCurrentValue();
+	}
 }
 
 void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -75,7 +80,9 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 
 	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
 	{
-		SetHealth(100);
+		// Adjusts the current health proportionally when the max health attribute changes
+		const float NewHealthValue = GetMaxHealth() * (GetHealth() / PreviousMaxHealth);
+		SetHealth(FMath::Clamp(NewHealthValue,0,GetMaxHealth()));
 	}
 }
 

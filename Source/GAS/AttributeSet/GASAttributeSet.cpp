@@ -5,6 +5,11 @@
 void UGASAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
 {
 	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetMaxManaAttribute())
+	{
+		PreviousMana = GetMaxMana();
+	}
 }
 
 void UGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
@@ -16,6 +21,11 @@ void UGASAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbac
 		SetMana(FMath::Clamp(GetMana(),0,GetMaxMana()));
 	}
 
+	if (Data.EvaluatedData.Attribute == GetMaxManaAttribute())
+	{
+		const float NewManaValue = GetMaxMana() * (GetMana() / PreviousMana);
+		SetMana(FMath::Clamp(NewManaValue,0,GetMaxMana()));
+	}
 }
 
 void UGASAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

@@ -44,4 +44,7 @@ public:
 	UFUNCTION()
 		void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
 
+private:
+
+	float PreviousMana = 0.0f;
 };

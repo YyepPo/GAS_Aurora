@@ -62,4 +62,8 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Damage")
     	FGameplayAttributeData Damage;
     ATTRIBUTE_ACCESSORS(UGASHealthAttributeSet, Damage)
+
+private:
+
+	float PreviousMaxHealth;
 };

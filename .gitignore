@@ -57,3 +57,4 @@ Thumbs.db
 # Optional: Ignore project-specific plugins binaries/intermediate
 Plugins/*/Binaries/
 Plugins/*/Intermediate/
+/Content/__ExternalActors__
