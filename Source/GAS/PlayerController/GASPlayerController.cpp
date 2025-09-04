@@ -3,6 +3,7 @@
 #include "GAS/GASPlayerState.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "GAS/InputComponent/GASEnhancedInputComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 AGASPlayerController::AGASPlayerController()
 {
@@ -29,6 +30,11 @@ void AGASPlayerController::SetupInputComponent()
 	{
 		GASInputComp->BindAbilityActions(InputConfig,this,&AGASPlayerController::OnAbilityPressed,&AGASPlayerController::OnAbilityReleased);
 	}
+}
+
+UAbilitySystemComponent* AGASPlayerController::GetAbilitySystemComponent() const
+{
+	return UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(GetPawn());
 }
 
 void AGASPlayerController::OnAbilityPressed(FGameplayTag Tag)

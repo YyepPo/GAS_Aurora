@@ -2,8 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "AbilitySystemInterface.h"
-#include "AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "AttributeSet/GASAttributeSet.h"
 #include "AttributeSet/GASHealthAttributeSet.h"
 #include "Character/GASCharacterBase.h"

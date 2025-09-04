@@ -1,5 +1,8 @@
 #include "GAS/Inventory/InventoryComponent.h"
 
+#include "ItemBase.h"
+#include "GAS/GASCharacter.h"
+#include "GAS/PlayerController/GASPlayerController.h"
 #include "Net/UnrealNetwork.h"
 
 //Create Inventory Map,that is going to be used for server only and it will be reconstructed from CachedInventory
@@ -20,6 +23,7 @@ bool FInventoryPackage::NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutS
 
 UInventoryComponent::UInventoryComponent()
 {
+	
 }
 
 void UInventoryComponent::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
@@ -31,7 +35,7 @@ void UInventoryComponent::GetLifetimeReplicatedProps(TArray<class FLifetimePrope
 void UInventoryComponent::AddItem(FGameplayTag ItemTag, const int32 Quantity)
 {
 	AActor* Owner =	GetOwner();
-	if (Owner == nullptr)
+	if (IsValid(Owner) == false)
 	{
 		return;
 	}
@@ -98,4 +102,104 @@ void UInventoryComponent::ReconstructInventoryMap(const FInventoryPackage& InInv
 		FColor::Red,
 		FString::Printf(TEXT("Client: Received Added Item: %s & quantity: %d"),*InInventoryPackage.ItemTags[i].ToString(),InInventoryPackage.Quantities[i]));
 	}
+}
+
+void UInventoryComponent::UseItem(FGameplayTag ItemTag)
+{
+	AActor* Owner =	GetOwner();
+	if (IsValid(Owner) == false)
+	{
+		return;
+	}
+
+	// Client Side
+	if (Owner->HasAuthority() == false)
+	{
+		Server_UseItem(ItemTag);
+		return;
+	}
+
+	// Server Side
+	// Check if item exists on the inventory
+	const bool ItemExists = InventoryMap.Contains(ItemTag);
+	if (ItemExists == false)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,
+				5.f,
+			FColor::Red,
+			FString::Printf(TEXT("Item %s does not exist in the inventory"),*ItemTag.ToString()));
+		return;
+	}
+
+	// Check if quantity is not zero
+	if (InventoryMap[ItemTag] == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,
+						5.f,
+					FColor::Red,
+					FString::Printf(TEXT("Items %s Quantity is 0"),*ItemTag.ToString()));
+		return;
+	}
+	
+	/*const FName RowName = FName(*ItemTag.ToString());
+	FItemBase* FoundItem = ItemDataTable->FindRow<FItemBase>(RowName,TEXT("Looking for row in Data Table"));
+	if (FoundItem)
+	{
+		if (AGASPlayerController* Controller = Cast<AGASPlayerController>(GetOwner()))
+		{
+			if (Controller->GetAbilitySystemComponent())
+			{
+				if (UAbilitySystemComponent* AbilitySystemComponent = Controller->GetAbilitySystemComponent())
+				{
+					FGameplayEffectContextHandle Handle = AbilitySystemComponent->MakeEffectContext();
+					FGameplayEffectSpecHandle EffectSpec = AbilitySystemComponent->MakeOutgoingSpec(FoundItem->GameplayEffect,1,Handle);
+					AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
+
+					AddItem(ItemTag,-1);
+				}
+			}
+		}
+	}*/
+
+	const FName RowName = FName(*ItemTag.ToString());
+	const FItemBase* FoundItem = ItemDataTable->FindRow<FItemBase>(RowName, TEXT("Looking for row in Data Table"));
+	if (!FoundItem || !FoundItem->GameplayEffect)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Item or GameplayEffect not found for tag %s"), *ItemTag.ToString());
+		return;
+	}
+
+	if (IAbilitySystemInterface* AbilitySystemOwner = Cast<IAbilitySystemInterface>(Owner))
+	{
+		if (UAbilitySystemComponent* AbilitySystemComponent = AbilitySystemOwner->GetAbilitySystemComponent())
+		{
+			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+			FGameplayEffectSpecHandle EffectSpec = AbilitySystemComponent->MakeOutgoingSpec(FoundItem->GameplayEffect, 1.0f, EffectContext);
+			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
+			AddItem(ItemTag, -1);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1,
+			5.f,
+			FColor::Blue,
+			FString::Printf(TEXT("AbilitySystem not valid")));
+		}
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1,
+			5.f,
+			FColor::Blue,
+			FString::Printf(TEXT("AbilitySystemOwner not valid")));	
+	}
+}
+
+void UInventoryComponent::Server_UseItem_Implementation(FGameplayTag ItemTag)
+{
+	UseItem(ItemTag);
+	GEngine->AddOnScreenDebugMessage(-1,
+		5.f,
+		FColor::Blue,
+		FString::Printf(TEXT("Server_IseItem: Client called server use item")));
 }

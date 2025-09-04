@@ -72,6 +72,11 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	{
 		SetArmor(FMath::Clamp(GetArmor(),0,GetMaxArmor()));
 	}
+
+	if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
+	{
+		SetHealth(100);
+	}
 }
 
 void UGASHealthAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

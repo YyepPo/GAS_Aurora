@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "GAS/AbilitySystemComponent/GASAbilitySystemComponent.h"
 #include "GAS/InputComponent/GASInputConfig.h"
@@ -13,7 +14,7 @@
  * 
  */
 UCLASS()
-class GAS_API AGASPlayerController : public APlayerController
+class GAS_API AGASPlayerController : public APlayerController,public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -22,8 +23,9 @@ public:
 	AGASPlayerController();
 	
 	virtual void BeginPlay() override;
-	
 	virtual void SetupInputComponent() override;
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 	
 private:
 	
