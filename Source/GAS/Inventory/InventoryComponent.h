@@ -7,7 +7,7 @@
 #include "Components/ActorComponent.h"
 #include "InventoryComponent.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FInventoryPackage
 {
 	virtual bool NetSerialize(FArchive& Ar, UPackageMap* Map, bool& bOutSuccess);
@@ -16,9 +16,9 @@ struct FInventoryPackage
 
 	virtual ~FInventoryPackage() = default;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly,Category = "Inventory")
 		TArray<FGameplayTag> ItemTags;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly,Category = "Inventory")
 		TArray<int32> Quantities;
 };
 template<>
@@ -29,6 +29,8 @@ struct TStructOpsTypeTraits<FInventoryPackage> : public TStructOpsTypeTraitsBase
 		WithNetSerializer = true
 	};
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnItemPickedUp,const FInventoryPackage&,InventoryPackage);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class GAS_API UInventoryComponent : public UActorComponent
@@ -42,9 +44,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 		void AddItem(FGameplayTag ItemTag,const int32 Quantity = 1);
+	// Return true if item is seccessfully used
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
-		void UseItem(FGameplayTag ItemTag);
-	
+		bool UseItem(FGameplayTag ItemTag);
+
+	UPROPERTY(BlueprintAssignable, Category = "Inventory")
+		FOnItemPickedUp OnItemPickedUp;
 private:
 
 	UFUNCTION(Server,Reliable)

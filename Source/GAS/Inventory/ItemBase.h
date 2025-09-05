@@ -11,15 +11,15 @@ struct FItemBase : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 		FText Name;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 		FText Description;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 		FGameplayTag ItemTag;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 		TObjectPtr<UTexture2D> Icon;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 		bool bConsumable = false;
 	// If consumable is true, then  the gameplay effect is usable 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bConsumable"))

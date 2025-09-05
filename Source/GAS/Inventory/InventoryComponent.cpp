@@ -66,6 +66,7 @@ void UInventoryComponent::AddItem(FGameplayTag ItemTag, const int32 Quantity)
 
 	// Prepare the struct serialized struct to send to network
 	PackageInventoryMap(CachedInventory);
+	OnItemPickedUp.Broadcast(CachedInventory);
 }
 
 void UInventoryComponent::Server_AddItem_Implementation(FGameplayTag ItemTag, const int32 Quantity)
@@ -76,6 +77,7 @@ void UInventoryComponent::Server_AddItem_Implementation(FGameplayTag ItemTag, co
 void UInventoryComponent::OnRep_CachedInventory()
 {
 	ReconstructInventoryMap(CachedInventory);
+	OnItemPickedUp.Broadcast(CachedInventory);
 }
 
 void UInventoryComponent::PackageInventoryMap(FInventoryPackage& OutInventoryPackage)
@@ -104,19 +106,19 @@ void UInventoryComponent::ReconstructInventoryMap(const FInventoryPackage& InInv
 	}
 }
 
-void UInventoryComponent::UseItem(FGameplayTag ItemTag)
+bool UInventoryComponent::UseItem(FGameplayTag ItemTag)
 {
 	AActor* Owner =	GetOwner();
 	if (IsValid(Owner) == false)
 	{
-		return;
+		return false;
 	}
 
 	// Client Side
 	if (Owner->HasAuthority() == false)
 	{
 		Server_UseItem(ItemTag);
-		return;
+		return false;
 	}
 
 	// Server Side
@@ -128,7 +130,7 @@ void UInventoryComponent::UseItem(FGameplayTag ItemTag)
 				5.f,
 			FColor::Red,
 			FString::Printf(TEXT("Item %s does not exist in the inventory"),*ItemTag.ToString()));
-		return;
+		return false;
 	}
 
 	// Check if quantity is not zero
@@ -138,35 +140,15 @@ void UInventoryComponent::UseItem(FGameplayTag ItemTag)
 						5.f,
 					FColor::Red,
 					FString::Printf(TEXT("Items %s Quantity is 0"),*ItemTag.ToString()));
-		return;
+		return false;
 	}
-	
-	/*const FName RowName = FName(*ItemTag.ToString());
-	FItemBase* FoundItem = ItemDataTable->FindRow<FItemBase>(RowName,TEXT("Looking for row in Data Table"));
-	if (FoundItem)
-	{
-		if (AGASPlayerController* Controller = Cast<AGASPlayerController>(GetOwner()))
-		{
-			if (Controller->GetAbilitySystemComponent())
-			{
-				if (UAbilitySystemComponent* AbilitySystemComponent = Controller->GetAbilitySystemComponent())
-				{
-					FGameplayEffectContextHandle Handle = AbilitySystemComponent->MakeEffectContext();
-					FGameplayEffectSpecHandle EffectSpec = AbilitySystemComponent->MakeOutgoingSpec(FoundItem->GameplayEffect,1,Handle);
-					AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
-
-					AddItem(ItemTag,-1);
-				}
-			}
-		}
-	}*/
 
 	const FName RowName = FName(*ItemTag.ToString());
 	const FItemBase* FoundItem = ItemDataTable->FindRow<FItemBase>(RowName, TEXT("Looking for row in Data Table"));
 	if (!FoundItem || !FoundItem->GameplayEffect)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Item or GameplayEffect not found for tag %s"), *ItemTag.ToString());
-		return;
+		return false;
 	}
 
 	if (IAbilitySystemInterface* AbilitySystemOwner = Cast<IAbilitySystemInterface>(Owner))
@@ -177,6 +159,7 @@ void UInventoryComponent::UseItem(FGameplayTag ItemTag)
 			FGameplayEffectSpecHandle EffectSpec = AbilitySystemComponent->MakeOutgoingSpec(FoundItem->GameplayEffect, 1.0f, EffectContext);
 			AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*EffectSpec.Data.Get());
 			AddItem(ItemTag, -1);
+			return true;
 		}
 		else
 		{
@@ -193,6 +176,7 @@ void UInventoryComponent::UseItem(FGameplayTag ItemTag)
 			FColor::Blue,
 			FString::Printf(TEXT("AbilitySystemOwner not valid")));	
 	}
+	return false;
 }
 
 void UInventoryComponent::Server_UseItem_Implementation(FGameplayTag ItemTag)
