@@ -56,6 +56,11 @@ void AGASCharacterBase::AddHitActor_Implementation(AActor* Actor)
 	
 }
 
+void AGASCharacterBase::DisplayDamageIndicator_Implementation(const float DamageAmount, const FVector& TargetLocation)
+{
+
+}
+
 void AGASCharacterBase::Server_SetIsDead_Implementation()
 {
 	bIsDead = true;

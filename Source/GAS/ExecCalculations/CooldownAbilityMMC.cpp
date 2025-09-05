@@ -10,7 +10,7 @@ float UCooldownAbilityMMC::CalculateBaseMagnitude_Implementation(const FGameplay
 	const UGASAbility* Ability = Cast<UGASAbility>(Spec.GetContext().GetAbility());
 	if (IsValid(Ability))
 	{
-		float Cooldown = Ability->GameplayCooldown;
+		float Cooldown = Ability->AbilityPropertiesDataAsset->AbilityProperties.Cooldown;
 		if (Cooldown <= 0.0f)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("CooldownAbilityMMC: GameplayCooldown is %f, returning 0.1 to avoid activation issues"), Cooldown);

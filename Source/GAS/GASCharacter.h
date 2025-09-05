@@ -85,6 +85,7 @@ protected:
 	//~ Character Info Interface
 	virtual void AddExperience_Implementation(const FScalableFloat& Experience) override;
 	virtual void Death_Implementation() override;
+	virtual void DisplayDamageIndicator_Implementation(const float DamageAmount, const FVector& TargetLocation) override;
 	//~ End Character Info Interface
 
 private:
@@ -94,6 +95,7 @@ private:
 		TObjectPtr<UGASAttributeSet> GASAttributeSet;
 	UPROPERTY(BlueprintReadOnly,Category = "GAS",meta = (AllowPrivateAccess = "true"))
 		TObjectPtr<UGASHealthAttributeSet> GASHealthAttributeSet;
+		
 	//~End GAS Related Properties
 
 	UPROPERTY(Transient,ReplicatedUsing = OnRep_ReplicatedAcceleration)

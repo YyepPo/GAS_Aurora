@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/GameplayAbility.h"
+#include "GAS/DataAssets/AbilityPropertiesDataAsset.h"
+#include "GAS/Sturct/SAbilityProperties.h"
 #include "GASAbility.generated.h"
 
 UCLASS()
@@ -15,6 +17,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 		FGameplayTag InputAbilityTag;
-	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite)
-		float GameplayCooldown = 0.1;
+
+	UPROPERTY(EditDefaultsOnly)
+		UAbilityPropertiesDataAsset* AbilityPropertiesDataAsset;
 };

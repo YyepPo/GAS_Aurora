@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "GAS/Sturct/SAbilityProperties.h"
 #include "GASAbilitySystemComponent.generated.h"
 
 
@@ -31,4 +32,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void ActivateAbilityByTag(FGameplayTag AbilityTag);
+
+	UFUNCTION(BlueprintCallable,BlueprintPure)
+		TArray<FAbilityProperties> GetAllAbilityProperties();
+
+private:
+
+	UPROPERTY()
+		TArray<FAbilityProperties> AbilitiesProperty;
 };

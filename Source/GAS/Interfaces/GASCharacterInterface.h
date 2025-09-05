@@ -25,4 +25,8 @@ public:
 		void AddExperience(const FScalableFloat& Experience);
 	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
 		void AddHitActor(AActor* Actor);
+
+	UFUNCTION(BlueprintCallable,BlueprintNativeEvent)
+		void DisplayDamageIndicator(const float DamageAmount,const FVector& TargetLocation);
+	
 };

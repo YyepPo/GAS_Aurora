@@ -1,4 +1,6 @@
 ﻿#include "GASAbilitySystemComponent.h"
+
+#include "SWarningOrErrorBox.h"
 #include "GAS/Abilities/GASAbility.h"
 
 UGASAbilitySystemComponent::UGASAbilitySystemComponent()
@@ -33,19 +35,7 @@ void UGASAbilitySystemComponent::AddCharacterAbilitiesAndActivate(
 		{
 			GameplayAbilitySpec.DynamicAbilityTags.AddTag(GASAbility->InputAbilityTag);
 			GiveAbility(GameplayAbilitySpec);
-			const bool bactivated  = TryActivateAbility(GameplayAbilitySpec.Handle);
-			if(bactivated)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("activatedddd"));
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("activatedddd noooot"));	
-			}
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning,TEXT("Select ability is not type of UGASAbility"));
+			TryActivateAbility(GameplayAbilitySpec.Handle);
 		}
 	}
 }
@@ -160,4 +150,30 @@ void UGASAbilitySystemComponent::ActivateAbilityByTag(FGameplayTag AbilityTag)
 			UE_LOG(LogTemp, Warning, TEXT("Ability: Death ability found"));
 		}
 	}
+}
+
+TArray<FAbilityProperties> UGASAbilitySystemComponent::GetAllAbilityProperties()
+{
+	TArray<FGameplayAbilitySpec> AbilitiesSpec =	GetActivatableAbilities();
+	for (auto& Spec : AbilitiesSpec)
+	{
+		UGASAbility* GASAbility = Cast<UGASAbility>(Spec.Ability);
+		if (IsValid(GASAbility) == false)
+		{
+			continue;
+		}
+
+		if (GASAbility->AbilityPropertiesDataAsset == nullptr)
+		{
+			continue;
+		}
+
+		const FAbilityProperties& AbilityProperty = GASAbility->AbilityPropertiesDataAsset->AbilityProperties;
+		if (!AbilitiesProperty.Contains(AbilityProperty))
+		{
+			AbilitiesProperty.Emplace(AbilityProperty);
+		}
+	}
+
+	return AbilitiesProperty;
 }

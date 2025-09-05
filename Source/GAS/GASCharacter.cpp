@@ -130,8 +130,8 @@ void AGASCharacter::InitAbilityInfo()
     		{
     			// Info about this function -> Initialized the Abilities' ActorInfo - the structure that holds information about who we are acting on and who controls us
     			GASAbilitySystemComponent->InitAbilityActorInfo(GASPlayerState,this);
-
-    			if(HasAuthority() && IsValid(GASAbilitySystemComponent) && IsValid(GASAttributeSet))
+    			
+    			if(HasAuthority() && IsValid(GASAttributeSet))
     			{
     				if(UCharacterInfoDataAsset* CharacterInfoDataAsset = UGASBlueprintFunctionLibrary::GetCharacterDataInfoAsset(this))
     				{
@@ -148,6 +148,9 @@ void AGASCharacter::InitAbilityInfo()
     					}
     				}
     			}
+
+    			if (IsLocallyControlled())
+    				GASAbilitySystemComponent->GetAllAbilityProperties();
     		}
     	}
 	
@@ -172,6 +175,11 @@ void AGASCharacter::Death_Implementation()
 	{
 		Server_SetIsDead();
 	}
+}
+
+void AGASCharacter::DisplayDamageIndicator_Implementation(const float DamageAmount, const FVector& TargetLocation)
+{
+	
 }
 
 void AGASCharacter::BeginPlay()

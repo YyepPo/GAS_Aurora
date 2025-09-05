@@ -34,10 +34,17 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 	{
 		const float LocalDamageDone = GetDamage();
 		SetDamage(0.f);
-
+				
 		const float NewArmor = GetArmor() - LocalDamageDone;
 		SetArmor(FMath::Clamp(NewArmor,0,GetMaxArmor()));
 
+		AActor* TargetActor = Data.Target.GetAvatarActor();
+		AActor* Instigator = ContextHandle.GetOriginalInstigatorAbilitySystemComponent()->GetAvatarActor();
+		if (TargetActor && Instigator && Instigator->IsA(AGASCharacterBase::StaticClass()) && Instigator->Implements<UGASCharacterInterface>())
+		{
+			IGASCharacterInterface::Execute_DisplayDamageIndicator(Instigator,LocalDamageDone,TargetActor->GetActorLocation());
+		}
+		
 		if(GetArmor() == 0)
 		{
 			const float NewHealth = GetHealth() - LocalDamageDone;
@@ -46,13 +53,11 @@ void UGASHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModC
 			// On Death
 			if(GetHealth() == 0)
 			{
-				AActor* TargetActor = Data.Target.GetAvatarActor();
 				if(IsValid(TargetActor) == false)
 				{
 					return;
 				}
 				
-				AActor* Instigator = ContextHandle.GetOriginalInstigatorAbilitySystemComponent()->GetAvatarActor();
 				if(Instigator && Instigator->IsA(AGASCharacterBase::StaticClass()) && Instigator->Implements<UGASCharacterInterface>() && Instigator->HasAuthority())
 				{
 					IGASCharacterInterface::Execute_AddHitActor(TargetActor,Instigator);
