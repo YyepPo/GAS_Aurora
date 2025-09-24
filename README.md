@@ -1,4 +1,4 @@
-# GAS_Aurora
+# GAS_Aurora -> WORK IN PROGRESS
 
 This Unreal Engine 5 project is a multiplayer third-person action game built with C++ and Gameplay Ability System (GAS). The primary goal is to learn and master GAS for multiplayer use, focusing on ability management, attribute systems, physical animations, UI materials, character movement and networking.
 
